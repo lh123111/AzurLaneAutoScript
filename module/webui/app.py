@@ -2157,36 +2157,6 @@ class AlasGUI(Frame):
         '''
         )
 
-        # Announcement check function - fetches from backend and pushes to frontend
-        def check_and_push_announcement():
-            try:
-                resp = requests.get(
-                    'https://ep.nekro.ai/e/wess09/alas/api/a1',
-                    timeout=10
-                )
-                if resp.status_code == 200:
-                    data = resp.json()
-                    if data and data.get('announcementId') and data.get('title') and data.get('content'):
-                        announcement_id = data['announcementId']
-                        title = data['title'].replace("'", "\\'").replace('\n', '\\n')
-                        content = data['content'].replace("'", "\\'").replace('\n', '\\n')
-                        run_js(f"window.alasShowAnnouncement('{title}', '{content}', '{announcement_id}');")
-            except Exception as e:
-                logger.debug(f"Announcement check failed: {e}")
-
-        # Periodic announcement check generator
-        def announcement_checker():
-            yield  # Initial yield to register with task handler
-            # Initial check after 2 seconds
-            time.sleep(2)
-            check_and_push_announcement()
-            yield
-            while True:
-                check_and_push_announcement()
-                yield
-
-        # Add announcement checker task (runs every 5 minutes = 300 seconds)
-        self.task_handler.add(announcement_checker(), delay=300, pending_delete=True)
 
         aside = get_localstorage("aside")
         self.show()
@@ -2272,6 +2242,38 @@ class AlasGUI(Frame):
         self.task_handler.add(visibility_state_switch.g(), 15)
         self.task_handler.add(update_switch.g(), 1)
         self.task_handler.start()
+
+        # Announcement check function - fetches from API and pushes to frontend
+        def check_and_push_announcement():
+            try:
+                resp = requests.get(
+                    'https://ep.nekro.ai/e/wess09/alas/api/a1',
+                    timeout=10
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    if data and data.get('announcementId') and data.get('title') and data.get('content'):
+                        announcement_id = data['announcementId']
+                        title = data['title'].replace("'", "\\'").replace('\n', '\\n')
+                        content = data['content'].replace("'", "\\'").replace('\n', '\\n')
+                        run_js(f"window.alasShowAnnouncement('{title}', '{content}', '{announcement_id}');")
+            except Exception as e:
+                logger.debug(f"Announcement check failed: {e}")
+
+        # Periodic announcement check generator
+        def announcement_checker():
+            th = yield  # Initial yield to get task handler reference
+            # First check - happens after initial delay (5 seconds)
+            check_and_push_announcement()
+            # After first check, set delay to 5 minutes for subsequent checks
+            th._task.delay = 300
+            yield
+            while True:
+                check_and_push_announcement()
+                yield
+
+        # Add announcement checker task (initial delay 5 seconds for quick first check)
+        self.task_handler.add(announcement_checker(), delay=5, pending_delete=True)
 
         # Return to previous page
         if aside not in ["Home", None]:
