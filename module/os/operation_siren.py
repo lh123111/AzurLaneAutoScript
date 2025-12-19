@@ -327,13 +327,14 @@ class OperationSiren(OSMap):
         发送推送通知（智能调度功能）
         
         Args:
-            title (str): 通知标题
+            title (str): 通知标题（会自动添加实例名称前缀）
             content (str): 通知内容
             
         Notes:
             - 仅在启用智能调度时生效
             - 需要在配置中设置 Error_OnePushConfig 才能发送推送
             - 使用 onepush 库发送通知到配置的推送渠道
+            - 标题会自动格式化为 "[Alas <实例名>] 原标题" 的形式
         """
         # 检查是否启用智能调度
         if not self.config.OpsiScheduling_EnableSmartScheduling:
@@ -345,19 +346,27 @@ class OperationSiren(OSMap):
         if not push_config or 'provider: null' in push_config or 'provider:null' in push_config:
             logger.warning("推送配置未设置或 provider 为 null，跳过推送。请在 Alas 设置 -> 错误处理 -> OnePush 配置中设置有效的推送渠道。")
             return
+        
+        # 获取实例名称并格式化标题
+        instance_name = getattr(self.config, 'config_name', 'Alas')
+        # 如果标题已经包含 [Alas]，替换为带实例名的版本
+        if title.startswith('[Alas]'):
+            formatted_title = f"[Alas <{instance_name}>]{title[6:]}"
+        else:
+            formatted_title = f"[Alas <{instance_name}>] {title}"
             
         # 导入并调用推送通知模块
         from module.notify.notify import handle_notify
         try:
             success = handle_notify(
                 self.config.Error_OnePushConfig,
-                title=title,
+                title=formatted_title,
                 content=content
             )
             if success:
-                logger.info(f"✓ 推送通知成功: {title}")
+                logger.info(f"✓ 推送通知成功: {formatted_title}")
             else:
-                logger.warning(f"✗ 推送通知失败: {title}")
+                logger.warning(f"✗ 推送通知失败: {formatted_title}")
         except Exception as e:
             logger.error(f"推送通知异常: {e}")
 
