@@ -744,7 +744,7 @@ class OperationSiren(OSMap):
 
             self.handle_after_auto_search()
             solved_events = getattr(self, '_solved_map_event', set())
-            if 'is_akashi' in solved_events:
+                if 'is_akashi' in solved_events:
                 try:
                     from datetime import datetime
                     key = f"{datetime.now():%Y-%m}-akashi"
@@ -755,7 +755,20 @@ class OperationSiren(OSMap):
                 except Exception:
                     logger.exception('Failed to persist CL1 akashi monthly count')
 
+            # 每次循环结束后提交CL1数据
+            try:
+                from module.statistics.cl1_data_submitter import get_cl1_submitter
+                submitter = get_cl1_submitter()
+                # 不检查时间间隔,每次循环都提交
+                raw_data = submitter.collect_data()
+                if raw_data.get('battle_count', 0) > 0:
+                    metrics = submitter.calculate_metrics(raw_data)
+                    submitter.submit_data(metrics)
+            except Exception as e:
+                logger.debug(f'CL1 data submission failed: {e}')
+
             self.config.check_task_switch()
+
 
     def os_check_leveling(self):
         logger.hr('OS check leveling', level=1)
