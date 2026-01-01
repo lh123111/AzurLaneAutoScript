@@ -9574,6 +9574,10 @@
       "Cl1Filter": {
         "type": "textarea",
         "value": "ActionPoint"
+      },
+      "RecordNonCL1AP": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "OpsiScheduling": {

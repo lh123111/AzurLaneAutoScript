@@ -2851,6 +2851,10 @@
     "Cl1Filter": {
       "name": "明石购买筛选",
       "help": "侵蚀一明石一般只购买体力nanoda,ActionPoint > PurpleCoins为购买紫币nanoda"
+    },
+    "RecordNonCL1AP": {
+      "name": "记录非侵蚀1来源的体力",
+      "help": "开启后，无论当前是否处于侵蚀1任务，都会记录从明石购买的体力数据。\n关闭后，仅记录侵蚀1任务中的体力数据。"
     }
   },
   "OpsiScheduling": {
