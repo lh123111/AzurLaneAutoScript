@@ -509,8 +509,8 @@
       "help": ""
     },
     "StrictRestart": {
-      "name": "Error.StrictRestart.name",
-      "help": "Error.StrictRestart.help"
+      "name": "敏感任务出错时禁止重启",
+      "help": "运行敏感任务出错时停止Alas，而不是重启游戏\n敏感任务包含隐秘海域、深渊海域、跨月每日"
     },
     "OnePushConfig": {
       "name": "错误推送设置",
