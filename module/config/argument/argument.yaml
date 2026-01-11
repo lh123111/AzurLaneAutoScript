@@ -1022,7 +1022,7 @@ OpsiExplore:
   SkipedSirenResearch:
     type: textarea
     display: disabled
-    value: ''
+    value: ""
   LastZone: 0
 OpsiShop:
   PresetFilter:
