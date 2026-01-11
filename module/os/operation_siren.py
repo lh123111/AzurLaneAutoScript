@@ -841,7 +841,12 @@ class OperationSiren(OSMap):
 
                         with self.config.multi_set():
                             cd = self.nearest_task_cooling_down
-                            if cd is None:
+                            if cd is not None:
+                                # 有冷却任务时，同时延迟侵蚀1任务到冷却任务之后
+                                # 避免侵蚀1在短猫被延迟后立即再次运行导致无限循环
+                                logger.info(f'有冷却任务 {cd.command}，延迟侵蚀1到 {cd.next_run}')
+                                self.config.task_delay(target=cd.next_run)
+                            else:
                                 for task in ['OpsiAbyssal', 'OpsiStronghold', 'OpsiObscure']:
                                     if self.config.is_task_enabled(task):
                                         self.config.task_call(task)
