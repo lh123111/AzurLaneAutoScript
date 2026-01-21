@@ -1,4 +1,4 @@
-
+from module.config.config import TaskEnd
 from module.config.utils import get_os_reset_remain
 from module.exception import RequestHumanTakeover, ScriptError
 from module.logger import logger
@@ -137,7 +137,7 @@ class OpsiMeowfficerFarming(OSMap):
                 try:
                     zone = self.name_to_zone(self.config.OpsiMeowfficerFarming_TargetZone)
                 except ScriptError:
-                    logger.error('无法定位配置的 TargetZone，停止任务')
+                    logger.error('无法定位配置 of TargetZone, stop task')
                     self.config.task_delay(server_update=True)
                     self.config.task_stop()
                 logger.hr(f'OS meowfficer farming (stay in zone), zone_id={zone.zone_id}', level=1)

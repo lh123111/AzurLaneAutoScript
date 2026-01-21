@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from module.config.config import TaskEnd
